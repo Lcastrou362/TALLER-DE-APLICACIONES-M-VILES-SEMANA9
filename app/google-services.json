@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "520273962139",
+    "project_id": "sumativasemana61",
+    "storage_bucket": "sumativasemana61.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520273962139:android:eb433ecbc715828153d23e",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG3icPu39LucTvCjxIFEqQvtWf9SmZHAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
