@@ -2,9 +2,11 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.util.Patterns;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,83 +14,85 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Variable para la autenticación de Firebase
     private FirebaseAuth mAuth;
-    // Campos de texto para el correo y la contraseña
-    private EditText txtemail, txtPassword;
-    // Botón para ingresar
+    private EditText txtEmail, txtPassword;
     private Button btnIngresar;
+    private TextView txtBienvenido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this); // Ajusta la interfaz para ocupar toda la pantalla
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Ejemplos de logs (informativo, error y advertencia)
-        Log.d("Titulo del mensaje", "contenido");
-        Log.e("Tag", "contenido");
-        Log.w("Un Mensaje", "contenido");
+        // Insets (márgenes seguros) — fuera de loginUser
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return insets;
+        });
 
-        // Texto de bienvenida
-        TextView bienbenido = findViewById(R.id.txtBienvenido);
-        bienbenido.setText("Bienbenido");
+        // UI
+        txtBienvenido = findViewById(R.id.txtBienvenido);
+        txtEmail      = findViewById(R.id.txtemail);
+        txtPassword   = findViewById(R.id.txtPassword);
+        btnIngresar   = findViewById(R.id.btnIngresar);
 
-        // Vinculamos los elementos del layout con las variables
-        txtemail = findViewById(R.id.txtemail);
-        txtPassword = findViewById(R.id.txtPassword);
-        btnIngresar = findViewById(R.id.btnIngresar);
+        txtBienvenido.setText("Bienvenido");
         btnIngresar.setText("Ingresar");
 
-        // Inicializamos FirebaseAuth
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
 
-        // Acción al hacer clic en el botón: llamar a loginUser()
+        // Click
         btnIngresar.setOnClickListener(v -> loginUser());
     }
 
-    // Método para iniciar sesión con Firebase Authentication
-    private void loginUser() {
-        // Obtenemos los valores de correo y contraseña
-        String email = txtemail.getText().toString().trim();
-        String pass = txtPassword.getText().toString().trim();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Si ya hay sesión, ir directo al mapa
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            irAlMapa();
+        }
+    }
 
-        // Validación: no dejar campos vacíos
+    private void loginUser() {
+        String email = txtEmail.getText().toString().trim();
+        String pass  = txtPassword.getText().toString().trim();
+
         if (email.isEmpty() || pass.isEmpty()) {
             Toast.makeText(this, "Completa correo y contraseña", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Correo inválido", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Intentamos autenticar con Firebase
+        btnIngresar.setEnabled(false);
+
         mAuth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
+            btnIngresar.setEnabled(true);
             if (task.isSuccessful()) {
-                // Si el login es correcto, abrimos MenuActivity
-                Intent i = new Intent(MainActivity.this, MenuActivity.class);
-                startActivity(i);
-                finish(); // Cerramos MainActivity para que no se pueda volver atrás
+                irAlMapa();
             } else {
-                // Si ocurre un error, mostramos el mensaje
                 String msg = (task.getException() != null)
                         ? task.getException().getLocalizedMessage()
-                        : "Error de autenticacion";
+                        : "Error de autenticación";
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
             }
         });
+    }
 
-        // Ajuste de márgenes para la compatibilidad con barras del sistema
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    private void irAlMapa() {
+        startActivity(new Intent(MainActivity.this, MapsOsmActivity.class));
+        finish(); // evita volver al login con back
     }
 }

@@ -1,4 +1,13 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="Bienvenido" />
+    <string name="app_name">Despacho OSM</string>
+
+    <!-- cadenas UI -->
+    <string name="hint_monto" translatable="false">Monto de compra (CLP)</string>
+    <string name="action_calcular" translatable="false">Calcular</string>
+    <string name="coords_placeholder" translatable="false">Lat: -, Lon: -</string>
+    <string name="dist_placeholder" translatable="false">Distancia: - km</string>
+    <string name="costo_placeholder" translatable="false">Costo despacho: - CLP</string>
+
+    <!-- la que falta -->
+    <string name="Bienvenido" translatable="false">Bienvenido</string>
 </resources>
